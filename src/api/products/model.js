@@ -3,7 +3,7 @@ import sequelize from "../../db.js";
 import CategoriesModel from "../categories/model.js";
 import ProductsCategoriesModel from "./productsCategoriesModel.js";
 
-const ProductModel = sequelize.define("product", {
+const ProductsModel = sequelize.define("product", {
   id: {
     type: DataTypes.UUID,
     primaryKey: true,
@@ -28,14 +28,14 @@ const ProductModel = sequelize.define("product", {
   },
 });
 
-ProductModel.belongsToMany(CategoriesModel, {
+ProductsModel.belongsToMany(CategoriesModel, {
   through: ProductsCategoriesModel,
   foreignKey: { name: "productId", allowNull: false },
 });
 
-CategoriesModel.belongsToMany(ProductModel, {
+CategoriesModel.belongsToMany(ProductsModel, {
   through: ProductsCategoriesModel,
   foreignKey: { name: "categoryId", allowNull: false },
 });
 
-export default ProductModel;
+export default ProductsModel;

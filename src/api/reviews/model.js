@@ -1,6 +1,6 @@
 import DataTypes from "sequelize";
 import sequelize from "../../db.js";
-import ProductModel from "../product/model.js";
+import ProductModel from "../products/model.js";
 import UsersModel from "../users/model.js";
 
 const ReviewsModel = sequelize.define("review", {

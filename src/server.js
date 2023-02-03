@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import listEndpoints from "express-list-endpoints";
 import { pgConnect, syncModels } from "./db.js";
-import productRouter from "./api/product/index.js";
+import productsRouter from "./api/products/index.js";
 import usersRouter from "./api/users/index.js";
 import reviewsRouter from "./api/reviews/index.js";
 import categoriesRouter from "./api/categories/index.js";
@@ -16,7 +16,7 @@ server.use(express.json());
 
 //**********ENDPOINTS ************** */
 
-server.use("/product", productRouter);
+server.use("/products", productsRouter);
 server.use("/users", usersRouter);
 server.use("/reviews", reviewsRouter);
 server.use("/categories", categoriesRouter);

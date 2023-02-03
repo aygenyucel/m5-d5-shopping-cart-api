@@ -1,21 +1,22 @@
 import express from "express";
 import createHttpError from "http-errors";
 import { Op } from "sequelize";
-import ProductModel from "./model.js";
+import ProductsModel from "./model.js";
+import UsersModel from "../users/model.js";
 import ReviewsModel from "./../reviews/model.js";
-import UsersModel from "./../users/model.js";
+import ProductsCategoriesModel from "./productsCategoriesModel.js";
 
-const productRouter = express.Router();
+const productsRouter = express.Router();
 
-productRouter.post("/", async (req, res, next) => {
+productsRouter.post("/", async (req, res, next) => {
   try {
-    const { id } = await ProductModel.create(req.body);
+    const { id } = await ProductsModel.create(req.body);
     res.status(201).send({ id });
   } catch (error) {
     next(error);
   }
 });
-productRouter.get("/", async (req, res, next) => {
+productsRouter.get("/", async (req, res, next) => {
   try {
     const query = {};
     if (req.query.name) {
@@ -34,7 +35,7 @@ productRouter.get("/", async (req, res, next) => {
         [Op.iLike]: `${req.query.category}%`,
       };
     }
-    const products = await ProductModel.findAll({
+    const products = await ProductsModel.findAll({
       where: { ...query },
     });
     res.send(products);
@@ -42,9 +43,9 @@ productRouter.get("/", async (req, res, next) => {
     next(error);
   }
 });
-productRouter.get("/:productId", async (req, res, next) => {
+productsRouter.get("/:productId", async (req, res, next) => {
   try {
-    const product = await ProductModel.findByPk(req.params.productId, {
+    const product = await ProductsModel.findByPk(req.params.productId, {
       attributes: {
         exclude: ["createdAt", "updatedAt"],
       },
@@ -74,9 +75,9 @@ productRouter.get("/:productId", async (req, res, next) => {
     next(error);
   }
 });
-productRouter.put("/:productId", async (req, res, next) => {
+productsRouter.put("/:productId", async (req, res, next) => {
   try {
-    const [numberOfUpdatedRows, updatedRecords] = await ProductModel.update(
+    const [numberOfUpdatedRows, updatedRecords] = await ProductsModel.update(
       req.body,
       { where: { id: req.params.productId }, returning: true }
     );
@@ -96,9 +97,9 @@ productRouter.put("/:productId", async (req, res, next) => {
   }
 });
 
-productRouter.delete("/:productId", async (req, res, next) => {
+productsRouter.delete("/:productId", async (req, res, next) => {
   try {
-    const numberOfDeletedRows = await ProductModel.destroy({
+    const numberOfDeletedRows = await ProductsModel.destroy({
       where: { id: req.params.productId },
     });
     if (numberOfDeletedRows === 1) {
@@ -116,4 +117,47 @@ productRouter.delete("/:productId", async (req, res, next) => {
   }
 });
 
-export default productRouter;
+productsRouter.get("/:productId/reviews", async (req, res, next) => {
+  try {
+    const product = await ProductsModel.findByPk(req.params.productId, {
+      include: {
+        model: ReviewsModel,
+        attributes: ["userId", "rating", "review"],
+      },
+    });
+
+    if (product) {
+      res.send(product);
+    } else {
+      next(
+        createHttpError(404, `Product with ${req.params.productId} not found!`)
+      );
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+productsRouter.post("/:productId/addCategory", async (req, res, next) => {
+  try {
+    const product = await ProductsModel.findByPk(req.params.productId);
+    if (product) {
+      const response = await ProductsCategoriesModel.create({
+        categoryId: req.body.categoryId,
+        productId: req.params.productId,
+      });
+      res.status(201).send(response);
+    } else {
+      next(
+        createHttpError(
+          404,
+          `Product with id ${req.params.productId} not found!`
+        )
+      );
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+export default productsRouter;
