@@ -5,6 +5,7 @@ import { pgConnect, syncModels } from "./db.js";
 import productRouter from "./api/product/index.js";
 import usersRouter from "./api/users/index.js";
 import reviewsRouter from "./api/reviews/index.js";
+import categoriesRouter from "./api/categories/index.js";
 
 const server = express();
 const port = process.env.PORT || 3001;
@@ -18,6 +19,7 @@ server.use(express.json());
 server.use("/product", productRouter);
 server.use("/users", usersRouter);
 server.use("/reviews", reviewsRouter);
+server.use("/categories", categoriesRouter);
 
 //*********ERROR HANDLERS **************** */
 
